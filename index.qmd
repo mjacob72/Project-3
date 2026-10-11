@@ -94,7 +94,26 @@ In this section, we will do some data wrangling.
 5.  Auto print your final wrangled tibble data frame.
 
 ```{r}
-# Add your solution here
+library(tidyverse)
+library(dplyr)
+
+temp_dir <- sales %>%
+    mutate(
+    # Remove patterns like "(US)[51]"
+    released = str_remove(released, "\\s*\\([^)]*\\)\\[[0-9]+\\]"),
+    
+    # Convert to Date class
+    released = mdy(released),
+    
+    # Convert sales to millions
+    sales = sales / 1e6
+  ) %>%
+  
+  # Keep only UK, US, and World sales
+  filter(country %in% c("UK", "US", "World", "WW")
+  )
+    
+temp_dir
 ```
 
 ## Part 1B
@@ -105,8 +124,14 @@ In this section, we will do some more data wrangling followed by summarization u
 2.  Create a new column called `years_since_release` corresponding to the number of years since the release of each album from Beyoncé and Taylor Swift. This should be a whole number and you should round down to "14" if you get a non-whole number like "14.12" years. (**Hint**: you may find the `interval()` function from `lubridate` helpful here, but this not the only way to do this.)
 3.  Calculate the most recent, oldest, and the median years since albums were released for both Beyoncé and Taylor Swift.
 
+**Student Note** 
+Assuming we are meant to use the data generated in part 1A to complete this section, the following answers the above questions 1b.1-3
 ```{r}
-# Add your solution here
+us_records <- temp_dir %>%
+  filter(country == "US") %>%
+  mutate(years_since_release = round(interval(start = released), digits = 0))
+  
+
 ```
 
 ## Part 1C
