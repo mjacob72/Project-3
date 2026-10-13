@@ -187,8 +187,11 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a bar plot for the
 manipulated_1D <- temp_dir %>%
   mutate(country = case_when(
     country == "World" ~ "WW",
-    .default = as.character(country)
-  ))
+    .default = country)) %>%
+  group_by(country) %>%
+  filter(country == "WW") %>%
+  ungroup()
+  
 ggplot(manipulated_1D, aes(fill = artist, y = title, x = sales))+
 geom_bar(position = "dodge", stat = "identity")
 
