@@ -167,7 +167,7 @@ manipulated_1C <- temp_dir %>%
   summarise(sale_by_country = sum(sales))
 
 # Plot using percentage of sales with country as delimiter
-ggplot( manipulated, aes(fill = country, x = artist, y = sale_by_country))+
+ggplot(manipulated_1C , aes(fill = country, x = artist, y = sale_by_country))+
   geom_bar(position = "fill", stat = "identity")
 
 ```
@@ -207,7 +207,17 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a scatter plot of 
 -   There should be three scatter plots (one for UK, US and world sales) faceted by rows.
 
 ```{r}
-# Add your solution here
+manipulated_1E <- temp_dir %>%
+  mutate(country = case_when(
+    country == "World" ~ "WW",
+    .default = country))
+
+ggplot(
+  data = manipulated_1E,
+  mapping = aes(x = released, y = sales, color = artist)
+)+
+  geom_point()+
+  facet_grid(~ country, scales = "free_y")
 ```
 
 # Part 2: Exploring sentiment of lyrics
