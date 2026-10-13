@@ -153,7 +153,23 @@ Using the wrangled data from Part 1A:
 2.  Using the total album sales, create a [percent stacked barchart](https://r-graph-gallery.com/48-grouped-barplot-with-ggplot2) using `ggplot2` of the percentage of sales of studio albums (in millions) along the y-axis for the two artists along the x-axis colored by the `country`.
 
 ```{r}
-# Add your solution here
+library(ggplot2)
+
+manipulated_1C <- temp_dir %>%
+  # Change World to WW to match
+  group_by(artist) %>%
+  mutate(country = case_when(
+    country == "World" ~ "WW",
+    .default = as.character(country)
+  )) %>%
+  # Change grouping to include country and sum data
+  group_by(artist, country) %>%
+  summarise(sale_by_country = sum(sales))
+
+# Plot using percentage of sales with country as delimiter
+ggplot( manipulated, aes(fill = country, x = artist, y = sale_by_country))+
+  geom_bar(position = "fill", stat = "identity")
+
 ```
 
 ## Part 1D
@@ -168,7 +184,14 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a bar plot for the
 -   The bars should be ordered from albums with the most sales (top) to the least sales (bottom) (**Note**: you must use functions from `forcats` for this step).
 
 ```{r}
-# Add your solution here
+manipulated_1D <- temp_dir %>%
+  mutate(country = case_when(
+    country == "World" ~ "WW",
+    .default = as.character(country)
+  ))
+ggplot(manipulated_1D, aes(fill = artist, y = title, x = sales))+
+geom_bar(position = "dodge", stat = "identity")
+
 ```
 
 ## Part 1E
