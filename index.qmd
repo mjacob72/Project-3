@@ -111,7 +111,11 @@ temp_dir <- sales %>%
   
   # Keep only UK, US, and World sales
   filter(country %in% c("UK", "US", "World", "WW")
-  )
+  ) %>%
+  
+  mutate(country = case_when(
+    country == "World" ~ "WW",
+    .default = country))
     
 temp_dir
 ```
@@ -156,19 +160,20 @@ Using the wrangled data from Part 1A:
 library(ggplot2)
 
 manipulated_1C <- temp_dir %>%
-  # Change World to WW to match
-  group_by(artist) %>%
-  mutate(country = case_when(
-    country == "World" ~ "WW",
-    .default = as.character(country)
-  )) %>%
-  # Change grouping to include country and sum data
+  # Group by country and artist then sum data
   group_by(artist, country) %>%
   summarise(sale_by_country = sum(sales))
 
 # Plot using percentage of sales with country as delimiter
 ggplot(manipulated_1C , aes(fill = country, x = artist, y = sale_by_country))+
-  geom_bar(position = "fill", stat = "identity")
+  geom_bar(position = "fill", stat = "identity")+
+  theme_light()+
+  theme(plot.title = element_text(size = 12, hjust = 0.5), legend.box.background = element_rect())+
+  labs(
+    x = "Artist",
+    y = "Proportion of Sales",
+    title = "Percentage of sales from UK, US, and World Wide for two Artists"
+  )
 
 ```
 
@@ -185,15 +190,19 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a bar plot for the
 
 ```{r}
 manipulated_1D <- temp_dir %>%
-  mutate(country = case_when(
-    country == "World" ~ "WW",
-    .default = country)) %>%
   group_by(country) %>%
   filter(country == "WW") %>%
   ungroup()
   
 ggplot(manipulated_1D, aes(fill = artist, y = title, x = sales))+
-geom_bar(position = "dodge", stat = "identity")
+geom_bar(position = "dodge", stat = "identity")+
+theme_light()+
+theme(plot.title = element_text(size = 14, hjust = 0.5), legend.box.background = element_rect())+
+labs(
+  x = "Sales (in millions)",
+  y = "Album title",
+  title = "World Sales for Beyonce and Taylor Swift by Album"
+)
 
 ```
 
@@ -207,17 +216,23 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a scatter plot of 
 -   There should be three scatter plots (one for UK, US and world sales) faceted by rows.
 
 ```{r}
-manipulated_1E <- temp_dir %>%
-  mutate(country = case_when(
-    country == "World" ~ "WW",
-    .default = country))
-
+# Create the plot, make it a scatter plot
 ggplot(
-  data = manipulated_1E,
+  data = temp_dir,
   mapping = aes(x = released, y = sales, color = artist)
 )+
   geom_point()+
-  facet_grid(~ country, scales = "free_y")
+# Split by country and then attach visuals
+  facet_grid(country~., scales = "free_y")+
+  theme_light()+
+  theme(plot.title = element_text(size = 12, hjust = 0.5), plot.subtitle = element_text(size = 9, hjust = 0.5), legend.box.background = element_rect())+
+  labs(
+    title = "Sales vs Release Date between the UK, US, and World Wide",
+    subtitle = "US sales drive global sales for both Beyonce and Taylor Swift",
+    x = "Release Date",
+    y = "Sales (in millions)",
+    color = "Artist"
+  )
 ```
 
 # Part 2: Exploring sentiment of lyrics
