@@ -96,6 +96,7 @@ In this section, we will do some data wrangling.
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(forcats)
 
 temp_dir <- sales %>%
     mutate(
@@ -106,17 +107,16 @@ temp_dir <- sales %>%
     released = mdy(released),
     
     # Convert sales to millions
-    sales = sales / 1e6
+    sales = sales / 1e6,
+
+    # Make country a factor and collapse WW factor
+    country = as.factor(country),
+    country = fct_collapse(country, WW = c("World","WW"))
   ) %>%
+
+  filter(country %in% c("UK", "US", "WW"))
   
-  # Keep only UK, US, and World sales
-  filter(country %in% c("UK", "US", "World", "WW")
-  ) %>%
-  
-  mutate(country = case_when(
-    country == "World" ~ "WW",
-    .default = country))
-    
+
 temp_dir
 ```
 
@@ -192,7 +192,8 @@ Using the wrangled data from Part 1A, use `ggplot2` to create a bar plot for the
 manipulated_1D <- temp_dir %>%
   group_by(country) %>%
   filter(country == "WW") %>%
-  ungroup()
+  ungroup() %>%
+  mutate(title = fct_reorder(title, sales))
   
 ggplot(manipulated_1D, aes(fill = artist, y = title, x = sales))+
 geom_bar(position = "dodge", stat = "identity")+
