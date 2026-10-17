@@ -248,7 +248,41 @@ Using `ts_lyrics`, create a new column called `line` with one line containing th
 -   How many lines in Taylor Swift's lyrics contain the word "goodbye"? For full credit, show all the rows in `ts_lyrics` that have "goodbye" in the `line` column and report how many rows there are in total.
 
 ```{r}
-# Add your solution here
+ts_lines <- ts_lyrics %>%
+  mutate(line = strsplit(Lyrics, "\n")) %>%
+  unnest_longer(line) %>%
+  mutate(line = str_trim(line)) %>%
+  filter(line != "")
+
+search_lyrics <- function(word, data = ts_lines) {
+  
+  matches <- data %>%
+    filter(str_detect(line, regex(word, ignore_case = TRUE)))
+  
+    total_count <- nrow(matches)
+  
+    by_song <- matches %>%
+    count(Title, name = "n_matches") %>%
+    arrange(desc(n_matches))
+  
+  list(
+    word = word,
+    matching_rows = matches,
+    total_count = total_count,
+    by_song = by_song
+  )
+}
+
+
+hello_ts_results <- search_lyrics("hello")
+goodbye_ts_results <- search_lyrics("goodbye")
+
+hello_ts_results$matching_rows$line
+paste("Hello Count: ", hello_ts_results$total_count)
+hello_ts_results$by_song
+goodbye_ts_results$matching_rows$line
+paste("Goodbye Count: ", goodbye_ts_results$total_count)
+goodbye_ts_results$by_song
 ```
 
 ## Part 2B
@@ -256,7 +290,17 @@ Using `ts_lyrics`, create a new column called `line` with one line containing th
 Repeat the same analysis for `b_lyrics` as described in Part 2A.
 
 ```{r}
-# Add your solution here
+colnames(b_lyrics)[colnames(b_lyrics) == "song_name"] <- "Title"
+
+hello_b_results <- search_lyrics("hello", data = b_lyrics)
+goodbye_b_results <- search_lyrics("goodbye", data = b_lyrics)
+
+hello_b_results$matching_rows$line
+paste("Hello Count: ", hello_b_results$total_count)
+hello_b_results$by_song
+goodbye_b_results$matching_rows$line
+paste("Goodbye Count: ", goodbye_b_results$total_count)
+goodbye_b_results$by_song
 ```
 
 ## Part 2C
